@@ -1,5 +1,3 @@
-a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
 class node:
 	def __init__(self,value,left=None,right=None):
 		self.value = value
@@ -83,15 +81,148 @@ class functions:
 
 		return current_node
 
+	def find(self,root,value):
+
+		if not root:
+			return None
+
+		if root.value == value:
+			return root
+
+		returnValue = None
+
+		if root.value > value:
+			returnValue = self.find(root.left,value)
+		else:
+			returnValue = self.find(root.right,value)
+
+		return returnValue
+
+
 
 	def printTree(self,root):
+		a = []
+
 		if root:
-			self.printTree(root.left)
-			print root
-			self.printTree(root.right)
+			a.append(root.value)
+
+			if root.left or root.right:
+				a.append(self.printTree(root.left))
+			if root.right:
+				a.append(self.printTree(root.right))
+
+		return a
+
+	def checkIsBinarySearchTree(self,root,min=None,max=None):
+		if not root:
+			return True
+
+		if(min and root.value < min) or (max and root.value > max):
+			return False
+
+		if self.checkIsBinarySearchTree(root.left,min,root.value) == False or self.checkIsBinarySearchTree(root.right,root.value,max) == False:
+			return False
+
+		return True
+
+	# Fails with a = [1, 2, 3, 4, 50, 6, 7, 8, 9, 10]
+	def checkIsBinarySearchTree_old(self,root):
+		if not root:
+			return True
+
+		if root.left and root.left.value > root.value:
+			return False
+
+		if root.right and root.right.value < root.value:
+			return False
+
+		if self.checkIsBinarySearchTree(root.left) == False or self.checkIsBinarySearchTree(root.right) == False:
+			return False
+
+		return True
+
+	def isEqual(self,rootA,rootB):
+
+		if not rootA and not rootB:
+			return True
+
+		if rootA.value != rootB.value:
+			return False
+
+		return self.isEqual(rootA.left,rootB.left) and self.isEqual(rootA.right,rootB.right)
+
+	def A_contains_B(self,rootA,rootB):
+
+		if not rootB:
+			return True
+
+		rootA_ = self.find(rootA,rootB.value)
+
+		return self.isEqual(rootA_,rootB)
+
+
+	def fpv(self,root,value):
+
+		result = self.findPathToValue(root,value)
+
+		if len(result) > 0:
+			return result
+
+		result = self.findPathToValue(root.left,value)
+
+		if len(result) > 0:
+			return result
+
+		result = self.findPathToValue(root.right,value)
+
+		if len(result) > 0:
+			return result
+
+		return []
+
+	def findPathToValue(self,root,value,path=[],valueSoFar=0):
+
+		if not root:
+			if valueSoFar == value:
+				return path
+
+			return []
+
+		if root.value == value:
+			return [root.value]
+
+		valueSoFar += root.value
+
+		result = self.findPathToValue(root.left,value,path+[root.value],valueSoFar)
+
+		if len(result) > 0:
+			return result
+
+		result = self.findPathToValue(root.right,value,path+[root.value],valueSoFar)
+
+		if len(result) > 0:
+			return result
+
+		if valueSoFar == value:
+			return path+[root.value]
+
+		return []
 
 
 if __name__ == "__main__":
-	root = functions().createTree(a)
-	# functions().printTree(root)
-	print functions().exportToJson(root)
+	b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+	# b = [2, 3, -4, 4, -2, 6, 7, 8, 6, 10, 11, 12 ,13,14,15,16,17]
+
+	# a = [1, 2, 3, 4, 5, 6]
+	a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+
+	rootb = functions().createTree(b)
+	# roota = functions().createTree(a)
+	# print functions().A_contains_B(roota,rootb)
+	# http://mshang.ca/syntree/
+	print str(functions().printTree(rootb)).replace(",","")
+	# print functions().exportToJson(root)
+	# print functions().checkIsBinarySearchTree(root)
+	# print str(functions().printTree(rootb)).replace(",","")
+	print functions().fpv(rootb,15)
